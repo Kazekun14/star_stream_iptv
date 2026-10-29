@@ -1,0 +1,519 @@
+{
+  "packageId": "starstream-update-2026-10-28",
+  "preparedDate": "2026-10-28",
+  "timezone": "Asia/Manila",
+  "baselineAvailable": false,
+  "installationScope": "payload/admin-ui only; non-production review copy",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 11339,
+      "sha256": "9e750e0e55652639044ee941108d7f908b1f4cf410ddcfad02a4e49f0d212b1f",
+      "scope": "support"
+    },
+    {
+      "path": "backend-reference/api-mgmt/composer.json",
+      "bytes": 369,
+      "sha256": "da08ff97e7a10d02f0a740641e81ce9bbab178f1e322a7b7e6fb37404cc59213",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/composer.lock",
+      "bytes": 17259,
+      "sha256": "f0347202a33690ecb2bee7021c1aa12ef3dc4eb179ad2ce93e3c5763fb8607be",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/public/index.php",
+      "bytes": 119,
+      "sha256": "f230741374b5201aa465843c86f5320a6bb6eae7a4177ab526ce971208ea0bb2",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/AdminAuth.php",
+      "bytes": 2597,
+      "sha256": "5e2558ba28740effddf553a1ba6bd86e4c0f2fb76d788edd9338e6f17d459d4d",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/AdminSettingsController.php",
+      "bytes": 4562,
+      "sha256": "d9d9b657ee1f90e3f89c0bd200f36766c0a1742f216b687c497b16250ba20b65",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/AuthController.php",
+      "bytes": 3661,
+      "sha256": "e963ed85331cb75aa7282dc8dbc1104fb3953e38937a78d7c43ddef8539c80bc",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/DashboardController.php",
+      "bytes": 5098,
+      "sha256": "55781dd9077de841b9947bd13abcfde5eecf51c7ef1751d045b2120764272207",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/LiveCategoryController.php",
+      "bytes": 5055,
+      "sha256": "67eca5b0f43f63637284a41e36bb92da854ecf88e4ddf245fa5e8d31fd00899f",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/LiveChannelsController.php",
+      "bytes": 14922,
+      "sha256": "782c41dec1ffb64c83c340b98513a494c7422c3c0e6d9694542ad3fc0d4dc87e",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/LivePackageChannelsController.php",
+      "bytes": 7339,
+      "sha256": "9d1f2fe2a23476a94d14994567777faf83fbebf8863ecd5345c97c7e6bbfff6b",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/LivePackagesController.php",
+      "bytes": 7141,
+      "sha256": "f6d14acc06b80f33c67297aae0b5a5daa51fb64545067a26870dc2a6c47bbf84",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/LiveUserPackagesController.php",
+      "bytes": 5171,
+      "sha256": "e254a5181f89faafd742ff013cf81f5d24b522ffc07ec16b0610c9a6d236a2df",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/PublicChannelsController.php",
+      "bytes": 1756,
+      "sha256": "566ee033f5cdba41f57b0c12760dd0b698d944d5f5a2bf4131aa117320553c41",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/RegUsersController.php",
+      "bytes": 20291,
+      "sha256": "caa33af89a352cb223e2ba8266964b3e5c2aee3902df6993c053ae89f586dcbf",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Controllers/UserPackagesController.php",
+      "bytes": 10975,
+      "sha256": "86dd87ad84600292d154609cefe30908c2d11acc7940ceb91500262b35c268e8",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Core/App.php",
+      "bytes": 1540,
+      "sha256": "e0e7f638854fc1d84ab344f03243994a1a8e778cbf7788f059c6404971ae7f66",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Core/Auth.php",
+      "bytes": 1099,
+      "sha256": "63b67fbfe4d52d1ecc89409e04a45a0a046844571bba1950f9c4a47c9f10d1e8",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Core/Db.php",
+      "bytes": 1316,
+      "sha256": "1330504c71243351ff7cabebfd6d11ea7297b2114fcd9668053c1eb60624a281",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Core/Env.php",
+      "bytes": 681,
+      "sha256": "78159979bc825c666f24aca7cd795f0f3a4705d45f82610167fe5af9dce5f774",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Core/Http.php",
+      "bytes": 1882,
+      "sha256": "78f890d8e79e0a0ac43ce382f9e4f568d6d903d21fefebb69ded985f6a266135",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Core/Logger.php",
+      "bytes": 807,
+      "sha256": "b76573dfe4e60f698092a56589405dba73586356f062cc585322b51a014f0c99",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Core/Router.php",
+      "bytes": 1617,
+      "sha256": "0e26e6775967aca3ad7602bd152a70b0973676879737b68fa73ff52a83607d51",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "backend-reference/api-mgmt/src/Routes/api.php",
+      "bytes": 5189,
+      "sha256": "05a58adf2481271d3ef89ad1d7fe139d04471a042e7f574e0c64115590ccbf13",
+      "scope": "manual-reference"
+    },
+    {
+      "path": "docs/CHANGES.md",
+      "bytes": 3726,
+      "sha256": "9f7f36c08b057cf592ab38a57008e32cbb951d211c052bafe84472732ffc6869",
+      "scope": "support"
+    },
+    {
+      "path": "docs/COMPATIBILITY.md",
+      "bytes": 8146,
+      "sha256": "17c49a9b4cbd0fb0515973d62c9f2daecc2f518650cad4fa30e8958478e13d94",
+      "scope": "support"
+    },
+    {
+      "path": "docs/DEPENDENCIES.json",
+      "bytes": 859,
+      "sha256": "462c8a9783562b57c0cd10c55b37d1bd509ebdadd7195cd77427d9d3a981d6b8",
+      "scope": "support"
+    },
+    {
+      "path": "docs/FILE-INVENTORY.csv",
+      "bytes": 12853,
+      "sha256": "3504419b1bad741c67f78955b102ed32328b5ac13178b2a6ffe406c80c62013b",
+      "scope": "support"
+    },
+    {
+      "path": "docs/PACKAGING-REPORT.json",
+      "bytes": 566,
+      "sha256": "4c608460ac123274924868cb85cf9e095f42fb37911b0f1921ffbe30ea0482dd",
+      "scope": "support"
+    },
+    {
+      "path": "docs/VALIDATION.md",
+      "bytes": 5187,
+      "sha256": "a676fb60075b2c7b0fe903038184355d1f75b7b4dfb75137f0a8d7ac38f64f25",
+      "scope": "support"
+    },
+    {
+      "path": "docs/source-provenance.json",
+      "bytes": 16609,
+      "sha256": "b7e5af36d1513960750fcb45ee7ad4ae8d03c86dd9746a27cd3df42fbafbfa80",
+      "scope": "support"
+    },
+    {
+      "path": "payload/admin-ui/index.html",
+      "bytes": 769,
+      "sha256": "218cd763a0a2a850df737e33d42426030a3c86d83b173cad2b2a4963d2b5caca",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/package-lock.json",
+      "bytes": 57271,
+      "sha256": "3dd3d299f4ad3488583f7e73a22899fc8ad8ef25927e5d08bb61d946ab7ddfe6",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/package.json",
+      "bytes": 553,
+      "sha256": "8b08aab4202813e41672d6f8495be7ae2c04831f2005f3d541cf87125646602e",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/public/cebu-cable-internet.png",
+      "bytes": 228901,
+      "sha256": "12420619d87db16111a4fc18040b5f479c284954526c9a3cee8809cf452f25ad",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/public/star-stream-logo.svg",
+      "bytes": 233987,
+      "sha256": "93cb0dffb72f93f3ae4b2d5af5e984cff954b0a422f748c250a0a77f53a7c952",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/App.tsx",
+      "bytes": 4410,
+      "sha256": "fb333d37471f5a96400eb74aa92cdd5d52b0d396d433a912c2a5b74bf74a95a4",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/auth.ts",
+      "bytes": 2132,
+      "sha256": "a831181ff8222caf1b9bff4c59df6b859dc1c386a2fd7c1455851c7dfd444a93",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/dashboard.ts",
+      "bytes": 1227,
+      "sha256": "8a34bc39c599d83b1e8a2c8d2eadb05f5f607ed05dbb87a5a0cf5a569f677885",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/health.ts",
+      "bytes": 155,
+      "sha256": "616fdd7f357cdcfb6aa4048f1ebc4f64178ae3e7652135581a48ea493449310b",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/http.ts",
+      "bytes": 1822,
+      "sha256": "27992a7032719b09dfcb503e3285ff0c5d8d03731736e0f5a720317cda8bbb93",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/live.ts",
+      "bytes": 3959,
+      "sha256": "ebc6e0e2bd00cc983f762132bd3d42b5a3799f0468237e233539dc639193adb9",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/packageChannels.ts",
+      "bytes": 773,
+      "sha256": "7dd0205b21437b513282d8aadc2a0fa1de434185d9b68e81304a1e175ef30407",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/packages.ts",
+      "bytes": 1430,
+      "sha256": "b744e212d2bf6510b43461ef54cb44a915ae329ce49569b361f5388946ebec43",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/regUsers.ts",
+      "bytes": 3400,
+      "sha256": "1c4d81b99c76426fff80f51d6bfc5f1ace272df512a61511aadf2c020447ff62",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/types.ts",
+      "bytes": 1196,
+      "sha256": "aae7cad8e483651f4ad1add4dc8acb48aeea4e2b4febe83430739f6a6cc59696",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/api/userPackages.ts",
+      "bytes": 2253,
+      "sha256": "9bf36ab22e2a7436f33ab9ce43c9ce6c51f3ff14386b522dc33966e53919c362",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/AccountMenu.tsx",
+      "bytes": 4424,
+      "sha256": "371109610342dd356a11f56d5d5d9272d098560b03aa21fddf782b54cb3cd29a",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/AppearanceSettings.tsx",
+      "bytes": 1772,
+      "sha256": "c3694f1416c22ead2b2009e6856407fe9a4d1e49b31caa5855181bf589a39e55",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/AuthGate.tsx",
+      "bytes": 1689,
+      "sha256": "b3c56f7e2fe5d049d330f1d255679dee097ad15ae9ff158737fc7534a405a6ff",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/Confirm.tsx",
+      "bytes": 3311,
+      "sha256": "451ae732fd3ece16901bfb03f1d1c45f70c2eb21e7eb9f81cef9ba3ad963eb1b",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/DataTable.tsx",
+      "bytes": 1069,
+      "sha256": "564940d4e9ddf84d9d28bec12b8dc6db0047cce6a6735b88562c35e3f9c23967",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/GlobalSearch.tsx",
+      "bytes": 4332,
+      "sha256": "0b8d72e770d07a76fd40099598777eda0aacc83a2d13417164d05b3afd0e1dc3",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/Modal.tsx",
+      "bytes": 1537,
+      "sha256": "56496daddfe33896bc0827e4f6d031e2c732d7ff8677e835ac2fe216f92b07d0",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/PackageBarChart.tsx",
+      "bytes": 4599,
+      "sha256": "9fec651fe063a1f1a3181a6127735aa8f6c828cc9bb6bd98fd609ceb52b163fb",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/Shell.tsx",
+      "bytes": 7357,
+      "sha256": "5b940816a476d991d1a067fcf25eeeceea6520e0c6020499124f884d7a237dc2",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/SidebarIcon.tsx",
+      "bytes": 1656,
+      "sha256": "cef3418a7b249c5e0def330df3ceb588c7cabc45af7f9f257811b161c637cfff",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/Toast.tsx",
+      "bytes": 3355,
+      "sha256": "21cc176770fc1ad3eb25a2211a6f1e79381043135f866b1221587d2bd4febf3a",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/packageBarChart.css",
+      "bytes": 2581,
+      "sha256": "72dac52422a0d0f6ffd3100b67b830f9282db66917d049789a7fefdda846cb98",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/components/shell.css",
+      "bytes": 18147,
+      "sha256": "939ef37c2d2f6ae38aafbe8fbf96c54fbb3cb20ca9148fa4a33ec6f8b58e5bff",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/main.tsx",
+      "bytes": 538,
+      "sha256": "3ad9ff05095efdbac1588cc4a9de2ae93f8c98f2b12a70b188ba4f715885e1ea",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/DashboardPage.tsx",
+      "bytes": 7962,
+      "sha256": "12b5f6eab6aa7a0f6461b31bd38320f78061301d4ce7d4c20d78d57204419f44",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/SettingsPage.tsx",
+      "bytes": 10701,
+      "sha256": "faf3d14f66c30dc1e830019c7f18c4e526d2892f8cd6ac31aa01442fc334c75c",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/adminPortal.css",
+      "bytes": 4652,
+      "sha256": "93490078c336ae6f9fe30b54f3710dd376dbb25d4a32b881b5e38c5bb360e926",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/adminPortal.tsx",
+      "bytes": 5766,
+      "sha256": "05147b814554233efd83c0a24832c7ce06e2fbfe93b84d9bd9ef98b96affd4d6",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/dashboard.css",
+      "bytes": 7274,
+      "sha256": "e4aecd0be09a0647715deb168821008f7252279c59879fc035beb89fb7d9a414",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/live/CategoriesPage.tsx",
+      "bytes": 11244,
+      "sha256": "cab3bda6fb8c4130894e92dfc436020adb9de8fc72a924c4ca6861118d31dfe1",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/live/ChannelsPage.tsx",
+      "bytes": 27028,
+      "sha256": "731218ce11a52ad3861255c4b36ae633fe3af1e54f02bf213c0de2207eb23db8",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/live/categories.css",
+      "bytes": 19457,
+      "sha256": "ff8df19a225abf617afa1dc2e52440472c819e022693b0aad1f031213505cc87",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/packages/PackageChannelsPage.tsx",
+      "bytes": 12527,
+      "sha256": "594a5dec3875d1a1961553ba18f138d923f45fe31096e0c0f15e48bb413efae2",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/packages/PackagesPage.tsx",
+      "bytes": 10180,
+      "sha256": "e9ccda963ff6e63f5686357c25a69e8dc332c8e0329d2802cd5420e8cc4f7ab9",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/packages/package-channels.css",
+      "bytes": 8938,
+      "sha256": "353e9fd12fab7012c8c2c108dc379c1c63829282178d274efe7c120a94017792",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/packages/packages.css",
+      "bytes": 6071,
+      "sha256": "c03c74408e329be5979c9789e9133c86f9755edc35d0d4050c5290963c570147",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/settings.css",
+      "bytes": 4545,
+      "sha256": "2409d9a75df253200e15c247f0d2277dda1f3fd1ba341101dd27a3f9efd9ddf1",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/users/RegUsersPage.tsx",
+      "bytes": 52629,
+      "sha256": "dfe541d25d51486c8f19ff3c2b745c2d0b34b3a0aa323b7c4ed8308c48e08ea5",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/pages/users/reg-users.css",
+      "bytes": 21957,
+      "sha256": "d57a7bd5488488a8b053b454018c4a1c3fc533f1e06f41a1bf06dc4fc184f9ea",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/responsive.css",
+      "bytes": 5918,
+      "sha256": "921ff3b3c62fda472610dda67b233e3b46092441eb427b98d524292dff8151af",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/styles.css",
+      "bytes": 15566,
+      "sha256": "aee191480c79ab1c2a246a30cd932f36f9ece733941cab962cd966518b695233",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/theme.css",
+      "bytes": 2705,
+      "sha256": "fcc3d33f8f97cad4e502f552c68c8bb2f9aa68cbac53e7f26181a3d7fff7b8b3",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/theme.ts",
+      "bytes": 1164,
+      "sha256": "e70df6ddbdb3ccb144afb55820ca22e93b0ab9f716cb72779611440003b3b129",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/utils/date.ts",
+      "bytes": 193,
+      "sha256": "f02726db55b0330ed9d1b4bdcb6b07817de3b8a05cbb33268b78597c1d8c76b0",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/src/utils/strings.ts",
+      "bytes": 123,
+      "sha256": "ae47160ae7d6767162b43f2925b37ed851252e39d2029094379a1715446a46e7",
+      "scope": "payload"
+    },
+    {
+      "path": "payload/admin-ui/tsconfig.json",
+      "bytes": 398,
+      "sha256": "1229a63dba17e8fbaa9f054bae9d2096ffb1bb3776ea043b552221ec631f6f6d",
+      "scope": "payload"
+    },
+    {
+      "path": "scripts/patch.cjs",
+      "bytes": 8866,
+      "sha256": "3b46c5c6fb891bd55bcf4ac5db9761e5b29a87619dcfea9a521f86d051cf4979",
+      "scope": "support"
+    },
+    {
+      "path": "templates/vite.config.example.ts",
+      "bytes": 371,
+      "sha256": "ea849449312019e7487d87557c734a944c34820711b1826b49cd2776709b868d",
+      "scope": "support"
+    }
+  ]
+}

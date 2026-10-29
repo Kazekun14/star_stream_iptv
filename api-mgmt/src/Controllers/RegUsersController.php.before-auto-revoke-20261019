@@ -1,0 +1,588 @@
+<?php
+declare(strict_types=1);
+
+namespace StarStream\Controllers;
+
+use PDO;
+use PDOException;
+use StarStream\Core\Db;
+use StarStream\Core\Http;
+
+final class RegUsersController
+{
+    /**
+     * GET /live/users?limit=&offset=&status=&q=
+     */
+    public static function list(): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        $q = Http::query();
+
+        $limit  = isset($q['limit'])  && ctype_digit((string)$q['limit'])  ? (int)$q['limit']  : 50;
+        $offset = isset($q['offset']) && ctype_digit((string)$q['offset']) ? (int)$q['offset'] : 0;
+
+        if ($limit < 1 || $limit > 200 || $offset < 0) {
+            Http::json(['ok' => false, 'error' => 'INVALID_PAGING'], 400);
+        }
+
+        $status = $q['status'] ?? null; // active|disabled|suspended|null
+        if ($status !== null && !in_array($status, ['active', 'disabled', 'suspended'], true)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_FILTER'], 400);
+        }
+
+        $search = trim((string)($q['q'] ?? ''));
+
+        $pdo = Db::pdo();
+
+        $where = [];
+        $bind  = [];
+
+        if ($status !== null) {
+            $where[] = "u.status = :status";
+            $bind['status'] = $status;
+        }
+
+        if ($search !== '') {
+            $where[] = "(u.username LIKE :q OR u.full_name LIKE :q OR u.email LIKE :q OR u.telephone LIKE :q OR u.area LIKE :q)";
+            $bind['q'] = '%' . $search . '%';
+        }
+
+        $whereSql = $where ? ("WHERE " . implode(" AND ", $where)) : "";
+
+        // total
+        $st = $pdo->prepare("SELECT COUNT(*) AS total FROM reg_users u $whereSql");
+        foreach ($bind as $k => $v) {
+            $st->bindValue(':' . $k, $v, PDO::PARAM_STR);
+        }
+        $st->execute();
+        $total = (int)$st->fetchColumn();
+        $st->closeCursor();
+
+        // items
+        $sql = "
+            SELECT
+                u.id,
+                u.username,
+                u.full_name,
+                u.email,
+                u.address,
+                u.area,
+                u.telephone,
+                u.zipcode,
+                u.notes,
+                u.status,
+                u.account_expiry,
+                u.is_trial,
+                u.max_connections,
+                u.max_live_devices,
+                u.auth_epoch,
+                u.entitlements_version,
+                u.hls_server_id,
+                u.created_at,
+                u.updated_at
+            FROM reg_users u
+            $whereSql
+            ORDER BY u.id DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $st = $pdo->prepare($sql);
+
+        foreach ($bind as $k => $v) {
+            $st->bindValue(':' . $k, $v, PDO::PARAM_STR);
+        }
+
+        $st->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $st->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        $st->execute();
+        $items = $st->fetchAll(PDO::FETCH_ASSOC);
+        $st->closeCursor();
+
+        Http::json([
+            'ok' => true,
+            'items' => array_map([self::class, 'rowPublic'], $items),
+            'paging' => [
+                'limit' => $limit,
+                'offset' => $offset,
+                'total' => $total,
+            ],
+        ], 200);
+    }
+
+    /**
+     * GET /live/users/{id}
+     */
+    public static function get(string $id): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        if (!ctype_digit($id)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_ID'], 400);
+        }
+
+        $pdo = Db::pdo();
+
+        $st = $pdo->prepare("
+            SELECT
+                id,
+                username,
+                full_name,
+                email,
+                address,
+                area,
+                telephone,
+                zipcode,
+                notes,
+                status,
+                account_expiry,
+                is_trial,
+                max_connections,
+                max_live_devices,
+                auth_epoch,
+                entitlements_version,
+                hls_server_id,
+                created_at,
+                updated_at
+            FROM reg_users
+            WHERE id = :id
+            LIMIT 1
+        ");
+        $st->bindValue(':id', (int)$id, PDO::PARAM_INT);
+        $st->execute();
+        $row = $st->fetch(PDO::FETCH_ASSOC);
+        $st->closeCursor();
+
+        if (!$row) {
+            Http::json(['ok' => false, 'error' => 'NOT_FOUND'], 404);
+        }
+
+        Http::json(['ok' => true, 'item' => self::rowPublic($row)], 200);
+    }
+
+    /**
+     * POST /live/users
+     * body: username, password, plus optional fields
+     */
+    public static function create(): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        $body = Http::bodyJson();
+
+        $username = trim((string)($body['username'] ?? ''));
+        $password = (string)($body['password'] ?? '');
+
+        if ($username === '' || $password === '') {
+            Http::json(['ok' => false, 'error' => 'INVALID_INPUT'], 400);
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9._-]{3,64}$/', $username)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_USERNAME'], 400);
+        }
+
+        if (strlen($password) < 6) {
+            Http::json(['ok' => false, 'error' => 'WEAK_PASSWORD'], 400);
+        }
+
+        $status = $body['status'] ?? 'active';
+        if (!in_array($status, ['active', 'disabled', 'suspended'], true)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_STATUS'], 400);
+        }
+
+        $fullName = self::optStr($body, 'full_name');
+        $email    = self::optStr($body, 'email');
+
+        $address   = self::optStr($body, 'address');
+        $area      = self::optStr($body, 'area');
+        $telephone = self::optStr($body, 'telephone');
+        $notes     = self::optStr($body, 'notes');
+
+        $accountExpiry = self::optStr($body, 'account_expiry'); // expects valid datetime string or null
+
+        $isTrial = ($body['is_trial'] ?? 0);
+        $isTrial = ($isTrial === true || $isTrial === 1 || $isTrial === '1') ? 1 : 0;
+
+        $maxConnections = $body['max_connections'] ?? 1;
+        $maxLiveDevices = $body['max_live_devices'] ?? 1;
+
+        if (!is_numeric($maxConnections) || (int)$maxConnections < 1 || (int)$maxConnections > 1000) {
+            Http::json(['ok' => false, 'error' => 'INVALID_MAX_CONNECTIONS'], 400);
+        }
+        if (!is_numeric($maxLiveDevices) || (int)$maxLiveDevices < 1 || (int)$maxLiveDevices > 1000) {
+            Http::json(['ok' => false, 'error' => 'INVALID_MAX_LIVE_DEVICES'], 400);
+        }
+
+        $zipcode = $body['zipcode'] ?? null;
+        if ($zipcode === '' || $zipcode === null) {
+            $zipcode = null;
+        } else {
+            if (!is_numeric($zipcode)) {
+                Http::json(['ok' => false, 'error' => 'INVALID_ZIPCODE'], 400);
+            }
+            $zipcode = (int)$zipcode;
+        }
+
+        $hlsServerId = $body['hls_server_id'] ?? null;
+        if ($hlsServerId === '' || $hlsServerId === null) {
+            $hlsServerId = null;
+        } else {
+            if (!is_numeric($hlsServerId)) {
+                Http::json(['ok' => false, 'error' => 'INVALID_HLS_SERVER_ID'], 400);
+            }
+            $hlsServerId = (int)$hlsServerId;
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        if (!$passwordHash) {
+            Http::json(['ok' => false, 'error' => 'HASH_FAIL'], 500);
+        }
+
+        $pdo = Db::pdo();
+
+        try {
+            $st = $pdo->prepare("
+                INSERT INTO reg_users (
+                    username, password_hash,
+                    full_name, email,
+                    address, area, telephone, zipcode, notes,
+                    status, account_expiry,
+                    is_trial, max_connections, max_live_devices,
+                    hls_server_id
+                ) VALUES (
+                    :username, :password_hash,
+                    :full_name, :email,
+                    :address, :area, :telephone, :zipcode, :notes,
+                    :status, :account_expiry,
+                    :is_trial, :max_connections, :max_live_devices,
+                    :hls_server_id
+                )
+            ");
+
+            $st->bindValue(':username', $username, PDO::PARAM_STR);
+            $st->bindValue(':password_hash', $passwordHash, PDO::PARAM_STR);
+
+            self::bindNullableStr($st, ':full_name', $fullName);
+            self::bindNullableStr($st, ':email', $email);
+
+            self::bindNullableStr($st, ':address', $address);
+            self::bindNullableStr($st, ':area', $area);
+            self::bindNullableStr($st, ':telephone', $telephone);
+            self::bindNullableInt($st, ':zipcode', $zipcode);
+            self::bindNullableStr($st, ':notes', $notes);
+
+            $st->bindValue(':status', $status, PDO::PARAM_STR);
+            self::bindNullableStr($st, ':account_expiry', $accountExpiry);
+
+            $st->bindValue(':is_trial', $isTrial, PDO::PARAM_INT);
+            $st->bindValue(':max_connections', (int)$maxConnections, PDO::PARAM_INT);
+            $st->bindValue(':max_live_devices', (int)$maxLiveDevices, PDO::PARAM_INT);
+
+            self::bindNullableInt($st, ':hls_server_id', $hlsServerId);
+
+            $st->execute();
+            $id = (int)$pdo->lastInsertId();
+            $st->closeCursor();
+        } catch (PDOException $e) {
+            if ((int)($e->errorInfo[1] ?? 0) === 1062) {
+                Http::json(['ok' => false, 'error' => 'DUPLICATE'], 409);
+            }
+            if ((int)($e->errorInfo[1] ?? 0) === 1452) {
+                Http::json(['ok' => false, 'error' => 'INVALID_REFERENCE'], 400);
+            }
+            throw $e;
+        }
+
+        Http::json(['ok' => true, 'id' => $id], 201);
+    }
+
+    /**
+     * PUT /live/users/{id}
+     */
+    public static function update(string $id): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        if (!ctype_digit($id)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_ID'], 400);
+        }
+        $idInt = (int)$id;
+
+        $body = Http::bodyJson();
+
+        $fields = [];
+        $bind   = ['id' => $idInt];
+        $changed = false;
+
+        // username
+        if (array_key_exists('username', $body)) {
+            $v = trim((string)$body['username']);
+            if ($v === '' || !preg_match('/^[a-zA-Z0-9._-]{3,64}$/', $v)) {
+                Http::json(['ok' => false, 'error' => 'INVALID_USERNAME'], 400);
+            }
+            $fields[] = "username = :username";
+            $bind['username'] = $v;
+            $changed = true;
+        }
+
+        // password
+        if (array_key_exists('password', $body)) {
+            $pw = (string)$body['password'];
+            if (strlen($pw) < 6) {
+                Http::json(['ok' => false, 'error' => 'WEAK_PASSWORD'], 400);
+            }
+            $hash = password_hash($pw, PASSWORD_DEFAULT);
+            if (!$hash) {
+                Http::json(['ok' => false, 'error' => 'HASH_FAIL'], 500);
+            }
+            $fields[] = "password_hash = :password_hash";
+            $bind['password_hash'] = $hash;
+            $changed = true;
+
+            // optional bump auth_epoch on password change
+            if (!empty($body['bump_auth_epoch'])) {
+                $fields[] = "auth_epoch = auth_epoch + 1";
+            }
+        }
+
+        // helper for nullable string fields
+        $nullableStrFields = [
+            'full_name' => 'full_name',
+            'email' => 'email',
+            'address' => 'address',
+            'area' => 'area',
+            'telephone' => 'telephone',
+            'notes' => 'notes',
+            'account_expiry' => 'account_expiry',
+        ];
+
+        foreach ($nullableStrFields as $k => $col) {
+            if (array_key_exists($k, $body)) {
+                $v = $body[$k];
+                $v = ($v === null) ? null : trim((string)$v);
+                if ($v === '') $v = null;
+
+                $fields[] = "$col = :$k";
+                $bind[$k] = $v;
+                $changed = true;
+            }
+        }
+
+        // status
+        if (array_key_exists('status', $body)) {
+            $v = (string)$body['status'];
+            if (!in_array($v, ['active', 'disabled', 'suspended'], true)) {
+                Http::json(['ok' => false, 'error' => 'INVALID_STATUS'], 400);
+            }
+            $fields[] = "status = :status";
+            $bind['status'] = $v;
+            $changed = true;
+        }
+
+        // is_trial
+        if (array_key_exists('is_trial', $body)) {
+            $v = $body['is_trial'];
+            $v = ($v === true || $v === 1 || $v === '1') ? 1 : 0;
+            $fields[] = "is_trial = :is_trial";
+            $bind['is_trial'] = $v;
+            $changed = true;
+        }
+
+        // max_connections
+        if (array_key_exists('max_connections', $body)) {
+            $v = $body['max_connections'];
+            if (!is_numeric($v) || (int)$v < 1 || (int)$v > 1000) {
+                Http::json(['ok' => false, 'error' => 'INVALID_MAX_CONNECTIONS'], 400);
+            }
+            $fields[] = "max_connections = :max_connections";
+            $bind['max_connections'] = (int)$v;
+            $changed = true;
+        }
+
+        // max_live_devices
+        if (array_key_exists('max_live_devices', $body)) {
+            $v = $body['max_live_devices'];
+            if (!is_numeric($v) || (int)$v < 1 || (int)$v > 1000) {
+                Http::json(['ok' => false, 'error' => 'INVALID_MAX_LIVE_DEVICES'], 400);
+            }
+            $fields[] = "max_live_devices = :max_live_devices";
+            $bind['max_live_devices'] = (int)$v;
+            $changed = true;
+        }
+
+        // zipcode
+        if (array_key_exists('zipcode', $body)) {
+            $v = $body['zipcode'];
+            if ($v === null || $v === '') {
+                $fields[] = "zipcode = NULL";
+            } else {
+                if (!is_numeric($v)) {
+                    Http::json(['ok' => false, 'error' => 'INVALID_ZIPCODE'], 400);
+                }
+                $fields[] = "zipcode = :zipcode";
+                $bind['zipcode'] = (int)$v;
+            }
+            $changed = true;
+        }
+
+        // hls_server_id
+        if (array_key_exists('hls_server_id', $body)) {
+            $v = $body['hls_server_id'];
+            if ($v === null || $v === '') {
+                $fields[] = "hls_server_id = NULL";
+            } else {
+                if (!is_numeric($v)) {
+                    Http::json(['ok' => false, 'error' => 'INVALID_HLS_SERVER_ID'], 400);
+                }
+                $fields[] = "hls_server_id = :hls_server_id";
+                $bind['hls_server_id'] = (int)$v;
+            }
+            $changed = true;
+        }
+
+        // optional bumps
+        if (!empty($body['bump_auth_epoch']) && !in_array("auth_epoch = auth_epoch + 1", $fields, true)) {
+            $fields[] = "auth_epoch = auth_epoch + 1";
+            $changed = true;
+        }
+        if (!empty($body['bump_entitlements']) || !empty($body['bump_entitlements_version'])) {
+            $fields[] = "entitlements_version = entitlements_version + 1";
+            $changed = true;
+        }
+
+        if (!$changed || empty($fields)) {
+            Http::json(['ok' => false, 'error' => 'NO_CHANGES'], 400);
+        }
+
+        $sql = "UPDATE reg_users SET " . implode(", ", $fields) . " WHERE id = :id";
+
+        $pdo = Db::pdo();
+
+        try {
+            $st = $pdo->prepare($sql);
+
+            foreach ($bind as $k => $v) {
+                if ($v === null) {
+                    $st->bindValue(':' . $k, null, PDO::PARAM_NULL);
+                } else if (is_int($v)) {
+                    $st->bindValue(':' . $k, $v, PDO::PARAM_INT);
+                } else {
+                    $st->bindValue(':' . $k, (string)$v, PDO::PARAM_STR);
+                }
+            }
+
+            $st->execute();
+
+            if ($st->rowCount() === 0) {
+                // could be "no changes" OR not found; check existence
+                $chk = $pdo->prepare("SELECT 1 FROM reg_users WHERE id = :id");
+                $chk->bindValue(':id', $idInt, PDO::PARAM_INT);
+                $chk->execute();
+                $exists = (bool)$chk->fetchColumn();
+                $chk->closeCursor();
+
+                if (!$exists) {
+                    Http::json(['ok' => false, 'error' => 'NOT_FOUND'], 404);
+                }
+            }
+
+            $st->closeCursor();
+        } catch (PDOException $e) {
+            if ((int)($e->errorInfo[1] ?? 0) === 1062) {
+                Http::json(['ok' => false, 'error' => 'DUPLICATE'], 409);
+            }
+            if ((int)($e->errorInfo[1] ?? 0) === 1452) {
+                Http::json(['ok' => false, 'error' => 'INVALID_REFERENCE'], 400);
+            }
+            throw $e;
+        }
+
+        Http::json(['ok' => true], 200);
+    }
+
+    /**
+     * DELETE /live/users/{id}
+     */
+    public static function delete(string $id): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        if (!ctype_digit($id)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_ID'], 400);
+        }
+        $idInt = (int)$id;
+
+        $pdo = Db::pdo();
+
+        try {
+            $st = $pdo->prepare("DELETE FROM reg_users WHERE id = :id");
+            $st->bindValue(':id', $idInt, PDO::PARAM_INT);
+            $st->execute();
+
+            if ($st->rowCount() === 0) {
+                Http::json(['ok' => false, 'error' => 'NOT_FOUND'], 404);
+            }
+
+            $st->closeCursor();
+        } catch (PDOException $e) {
+            if ((int)($e->errorInfo[1] ?? 0) === 1451) {
+                Http::json(['ok' => false, 'error' => 'HAS_DEPENDENCIES'], 409);
+            }
+            throw $e;
+        }
+
+        Http::json(['ok' => true], 200);
+    }
+
+    private static function rowPublic(array $r): array
+    {
+        return [
+            'id' => (int)$r['id'],
+            'username' => (string)$r['username'],
+
+            'full_name' => $r['full_name'] === null ? null : (string)$r['full_name'],
+            'email' => $r['email'] === null ? null : (string)$r['email'],
+
+            'address' => $r['address'] === null ? null : (string)$r['address'],
+            'area' => $r['area'] === null ? null : (string)$r['area'],
+            'telephone' => $r['telephone'] === null ? null : (string)$r['telephone'],
+            'zipcode' => $r['zipcode'] === null ? null : (int)$r['zipcode'],
+            'notes' => $r['notes'] === null ? null : (string)$r['notes'],
+
+            'status' => (string)$r['status'],
+            'account_expiry' => $r['account_expiry'] === null ? null : (string)$r['account_expiry'],
+
+            'is_trial' => (int)$r['is_trial'],
+            'max_connections' => (int)$r['max_connections'],
+            'max_live_devices' => (int)$r['max_live_devices'],
+            'auth_epoch' => (int)$r['auth_epoch'],
+            'entitlements_version' => (int)$r['entitlements_version'],
+            'hls_server_id' => $r['hls_server_id'] === null ? null : (int)$r['hls_server_id'],
+
+            'created_at' => isset($r['created_at']) ? (string)$r['created_at'] : null,
+            'updated_at' => isset($r['updated_at']) ? (string)$r['updated_at'] : null,
+        ];
+    }
+
+    private static function optStr(array $body, string $key): ?string
+    {
+        if (!array_key_exists($key, $body)) return null;
+        $v = $body[$key];
+        if ($v === null) return null;
+        $s = trim((string)$v);
+        return $s === '' ? null : $s;
+    }
+
+    private static function bindNullableStr(\PDOStatement $st, string $param, ?string $v): void
+    {
+        if ($v === null) $st->bindValue($param, null, PDO::PARAM_NULL);
+        else $st->bindValue($param, $v, PDO::PARAM_STR);
+    }
+
+    private static function bindNullableInt(\PDOStatement $st, string $param, ?int $v): void
+    {
+        if ($v === null) $st->bindValue($param, null, PDO::PARAM_NULL);
+        else $st->bindValue($param, $v, PDO::PARAM_INT);
+    }
+}

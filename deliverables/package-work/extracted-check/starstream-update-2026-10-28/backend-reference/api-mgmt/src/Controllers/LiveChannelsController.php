@@ -1,0 +1,453 @@
+<?php
+declare(strict_types=1);
+
+namespace StarStream\Controllers;
+
+use PDO;
+use PDOException;
+use StarStream\Core\Db;
+use StarStream\Core\Http;
+
+final class LiveChannelsController
+{
+    public static function list(): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        $q = Http::query();
+
+        $limit  = isset($q['limit'])  && ctype_digit((string)$q['limit'])  ? (int)$q['limit']  : 200;
+        $offset = isset($q['offset']) && ctype_digit((string)$q['offset']) ? (int)$q['offset'] : 0;
+
+        if ($limit < 1 || $limit > 200 || $offset < 0) {
+            Http::json(['ok' => false, 'error' => 'INVALID_PAGING'], 400);
+        }
+
+        $pdo = Db::pdo();
+
+        $st = $pdo->prepare("
+            SELECT
+                c.id,
+                c.channel_key,
+                c.name,
+                c.number,
+                c.category_id,
+                c.logo_file_id,
+                mf.uri AS logo_uri,
+                c.source_uri,
+                c.enabled,
+                c.created_at,
+                c.updated_at
+            FROM live_channels c
+            LEFT JOIN media_files mf
+                ON mf.id = c.logo_file_id
+            ORDER BY c.number ASC
+            LIMIT :limit OFFSET :offset
+        ");
+        $st->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $st->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $st->execute();
+        $items = $st->fetchAll(PDO::FETCH_ASSOC);
+        $st->closeCursor();
+
+        $total = (int)$pdo
+            ->query("SELECT COUNT(*) FROM live_channels")
+            ->fetchColumn();
+
+        Http::json([
+            'ok' => true,
+            'items' => $items,
+            'paging' => [
+                'limit' => $limit,
+                'offset' => $offset,
+                'total' => $total,
+            ],
+        ]);
+    }
+
+    public static function get(string $id): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        if (!ctype_digit($id)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_ID'], 400);
+        }
+
+        $pdo = Db::pdo();
+
+        $st = $pdo->prepare("
+            SELECT
+                c.id,
+                c.channel_key,
+                c.name,
+                c.number,
+                c.category_id,
+                c.logo_file_id,
+                mf.uri AS logo_uri,
+                c.source_uri,
+                c.enabled,
+                c.created_at,
+                c.updated_at
+            FROM live_channels c
+            LEFT JOIN media_files mf
+                ON mf.id = c.logo_file_id
+            WHERE c.id = :id
+            LIMIT 1
+        ");
+        $st->execute(['id' => (int)$id]);
+        $row = $st->fetch(PDO::FETCH_ASSOC);
+        $st->closeCursor();
+
+        if (!$row) {
+            Http::json(['ok' => false, 'error' => 'NOT_FOUND'], 404);
+        }
+
+        Http::json(['ok' => true, 'item' => $row]);
+    }
+
+    public static function create(): void
+    {
+        AdminAuth::requireAdmin(true);
+        $body = Http::bodyJson();
+
+        $channelKey = strtoupper(trim((string)($body['channel_key'] ?? '')));
+        $name       = trim((string)($body['name'] ?? ''));
+        $number     = $body['number'] ?? null;
+        $sourceUri  = trim((string)($body['source_uri'] ?? ''));
+        $categoryId = $body['category_id'] ?? null;
+        $enabled    = isset($body['enabled']) && (int)$body['enabled'] === 0 ? 0 : 1;
+
+        if (
+            $channelKey === '' ||
+            !preg_match('/^[A-Z0-9]{8}$/', $channelKey) ||
+            $name === '' ||
+            !is_numeric($number) ||
+            (int)$number < 1 ||
+            $sourceUri === ''
+        ) {
+            Http::json(['ok' => false, 'error' => 'INVALID_INPUT'], 400);
+        }
+
+        $pdo = Db::pdo();
+
+        try {
+            $st = $pdo->prepare("
+                INSERT INTO live_channels
+                    (channel_key, name, number, category_id, source_uri, enabled)
+                VALUES
+                    (:channel_key, :name, :number, :category_id, :source_uri, :enabled)
+            ");
+            $st->execute([
+                'channel_key' => $channelKey,
+                'name' => $name,
+                'number' => (int)$number,
+                'category_id' => $categoryId === null ? null : (int)$categoryId,
+                'source_uri' => $sourceUri,
+                'enabled' => $enabled,
+            ]);
+            $st->closeCursor();
+        } catch (PDOException $e) {
+            if ((int)($e->errorInfo[1] ?? 0) === 1062) {
+                Http::json(['ok' => false, 'error' => 'DUPLICATE'], 409);
+            }
+            throw $e;
+        }
+
+        Http::json([
+            'ok' => true,
+            'id' => (int)$pdo->lastInsertId(),
+        ], 201);
+    }
+
+    public static function update(string $id): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        if (!ctype_digit($id)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_ID'], 400);
+        }
+
+        $body = Http::bodyJson();
+        $pdo = Db::pdo();
+
+        $st = $pdo->prepare("
+            UPDATE live_channels
+            SET
+                name = :name,
+                number = :number,
+                category_id = :category_id,
+                source_uri = :source_uri,
+                enabled = :enabled,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = :id
+        ");
+
+        $st->execute([
+            'id' => (int)$id,
+            'name' => trim((string)$body['name']),
+            'number' => (int)$body['number'],
+            'category_id' => $body['category_id'] ?? null,
+            'source_uri' => trim((string)$body['source_uri']),
+            'enabled' => isset($body['enabled']) && (int)$body['enabled'] === 0 ? 0 : 1,
+        ]);
+
+        if ($st->rowCount() === 0) {
+            Http::json(['ok' => false, 'error' => 'NOT_FOUND'], 404);
+        }
+
+        Http::json(['ok' => true]);
+    }
+
+    public static function delete(string $id): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        if (!ctype_digit($id)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_ID'], 400);
+        }
+
+        $pdo = Db::pdo();
+
+        $st = $pdo->prepare("DELETE FROM live_channels WHERE id = :id");
+        $st->execute(['id' => (int)$id]);
+
+        if ($st->rowCount() === 0) {
+            Http::json(['ok' => false, 'error' => 'NOT_FOUND'], 404);
+        }
+
+        Http::json(['ok' => true]);
+    }
+
+    /**
+     * POST /live/channels/:id/logo
+     * multipart/form-data with file field "logo"
+     */
+    public static function uploadLogo(string $id): void
+    {
+        AdminAuth::requireAdmin(true);
+
+        if (!ctype_digit($id)) {
+            Http::json(['ok' => false, 'error' => 'INVALID_ID'], 400);
+        }
+        $channelId = (int)$id;
+
+        if (!isset($_FILES['logo'])) {
+            Http::json(['ok' => false, 'error' => 'LOGO_REQUIRED'], 400);
+        }
+
+        $f = $_FILES['logo'];
+
+        if (!isset($f['error']) || $f['error'] !== UPLOAD_ERR_OK) {
+            $code = (int)($f['error'] ?? -1);
+
+            if ($code === UPLOAD_ERR_INI_SIZE || $code === UPLOAD_ERR_FORM_SIZE) {
+                Http::json(['ok' => false, 'error' => 'LOGO_TOO_LARGE'], 413);
+            }
+
+            Http::json(['ok' => false, 'error' => 'UPLOAD_FAILED', 'code' => $code], 400);
+        }
+
+        // ---- Limits (env-configurable) ----
+        $MAX_BYTES = (int)self::env('CHANNEL_LOGO_MAX_BYTES', '2097152'); // 2MB
+        $MAX_W     = (int)self::env('CHANNEL_LOGO_MAX_W', '4096');
+        $MAX_H     = (int)self::env('CHANNEL_LOGO_MAX_H', '4096');
+        $OUT_SIZE  = (int)self::env('CHANNEL_LOGO_SIZE', '256');
+
+        // Disk + URL config
+        $DISK_BASE  = (string)self::env('CHANNEL_LOGO_DISK_BASE', '/opt/starstream/assets/channels/logos');
+        $URL_PREFIX = (string)self::env('CHANNEL_LOGO_URL_PREFIX', '/assets/channels/logos');
+
+        if (!isset($f['size']) || (int)$f['size'] > $MAX_BYTES) {
+            Http::json(['ok' => false, 'error' => 'LOGO_TOO_LARGE'], 413);
+        }
+
+        $tmp = (string)$f['tmp_name'];
+
+        // Verify image + get dimensions without full decode
+        $info = @getimagesize($tmp);
+        if ($info === false) {
+            Http::json(['ok' => false, 'error' => 'INVALID_IMAGE'], 400);
+        }
+
+        [$w, $h, $type] = $info;
+
+        if ($w <= 0 || $h <= 0) {
+            Http::json(['ok' => false, 'error' => 'INVALID_IMAGE_DIMENSIONS'], 400);
+        }
+
+        if ($w > $MAX_W || $h > $MAX_H) {
+            Http::json(['ok' => false, 'error' => 'IMAGE_DIMENSIONS_TOO_LARGE'], 413);
+        }
+
+        $allowed = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP, IMAGETYPE_GIF];
+        if (!in_array((int)$type, $allowed, true)) {
+            Http::json(['ok' => false, 'error' => 'UNSUPPORTED_IMAGE_TYPE'], 400);
+        }
+
+        // Decode
+        $src = self::gdLoadByType($tmp, (int)$type);
+        if (!$src) {
+            Http::json(['ok' => false, 'error' => 'DECODE_FAILED'], 400);
+        }
+
+        // Resize to square canvas w/ transparency
+        $out = self::gdResizeContainSquare($src, (int)$w, (int)$h, $OUT_SIZE);
+
+        // Ensure directory exists
+        if (!is_dir($DISK_BASE)) {
+            if (!@mkdir($DISK_BASE, 0755, true) && !is_dir($DISK_BASE)) {
+                imagedestroy($src);
+                imagedestroy($out);
+                Http::json(['ok' => false, 'error' => 'STORAGE_UNAVAILABLE'], 500);
+            }
+        }
+
+        $pdo = Db::pdo();
+
+        // Confirm channel exists + get old logo id
+        $st = $pdo->prepare("SELECT logo_file_id FROM live_channels WHERE id = :id LIMIT 1");
+        $st->execute(['id' => $channelId]);
+        $row = $st->fetch(PDO::FETCH_ASSOC);
+        $st->closeCursor();
+
+        if (!$row) {
+            imagedestroy($src);
+            imagedestroy($out);
+            Http::json(['ok' => false, 'error' => 'NOT_FOUND'], 404);
+        }
+
+        $oldLogoId = $row['logo_file_id'] !== null ? (int)$row['logo_file_id'] : null;
+
+        try {
+            $pdo->beginTransaction();
+
+            // Insert media row first (reserve id)
+            $mime = 'image/png';
+            $st = $pdo->prepare("
+                INSERT INTO media_files (kind, uri, mime_type, bytes)
+                VALUES ('logo', '', :mime, 0)
+            ");
+            $st->execute(['mime' => $mime]);
+            $mediaId = (int)$pdo->lastInsertId();
+            $st->closeCursor();
+
+            $filename = "logo_{$mediaId}.png";
+            $diskPath = rtrim($DISK_BASE, '/') . '/' . $filename;
+            $uri      = rtrim($URL_PREFIX, '/') . '/' . $filename;
+
+            // Write png
+            $ok = @imagepng($out, $diskPath, 6);
+
+            imagedestroy($src);
+            imagedestroy($out);
+
+            if (!$ok) {
+                throw new \RuntimeException('WRITE_FAILED');
+            }
+
+            $bytes = @filesize($diskPath);
+            if ($bytes === false) {
+                $bytes = null;
+            }
+
+            // Update media_files with final uri + bytes
+            $st = $pdo->prepare("UPDATE media_files SET uri=:uri, bytes=:bytes WHERE id=:id");
+            $st->execute(['uri' => $uri, 'bytes' => $bytes, 'id' => $mediaId]);
+            $st->closeCursor();
+
+            // Point channel to new logo
+            $st = $pdo->prepare("UPDATE live_channels SET logo_file_id=:mid WHERE id=:cid");
+            $st->execute(['mid' => $mediaId, 'cid' => $channelId]);
+            $st->closeCursor();
+
+            // Best-effort remove old logo row + disk file
+            if ($oldLogoId !== null) {
+                $st = $pdo->prepare("SELECT uri FROM media_files WHERE id=:id AND kind='logo' LIMIT 1");
+                $st->execute(['id' => $oldLogoId]);
+                $old = $st->fetch(PDO::FETCH_ASSOC);
+                $st->closeCursor();
+
+                if ($old && isset($old['uri'])) {
+                    $oldUri = (string)$old['uri'];
+                    $prefix = rtrim($URL_PREFIX, '/') . '/';
+
+                    // Works on PHP 8+; if you're on 7.x, replace with substr compare
+                    if (function_exists('str_starts_with') && str_starts_with($oldUri, $prefix)) {
+                        $oldFile = substr($oldUri, strlen($prefix));
+                        @unlink(rtrim($DISK_BASE, '/') . '/' . $oldFile);
+                    } elseif (substr($oldUri, 0, strlen($prefix)) === $prefix) {
+                        $oldFile = substr($oldUri, strlen($prefix));
+                        @unlink(rtrim($DISK_BASE, '/') . '/' . $oldFile);
+                    }
+                }
+
+                $st = $pdo->prepare("DELETE FROM media_files WHERE id=:id AND kind='logo'");
+                $st->execute(['id' => $oldLogoId]);
+                $st->closeCursor();
+            }
+
+            $pdo->commit();
+
+            Http::json([
+                'ok' => true,
+                'channel_id' => $channelId,
+                'logo_file_id' => $mediaId,
+                'logo_uri' => $uri,
+                'size' => $OUT_SIZE,
+            ], 201);
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            Http::json(['ok' => false, 'error' => 'UPLOAD_LOGO_FAILED'], 500);
+        }
+    }
+
+    // ---------- Helpers ----------
+
+    /**
+     * Env reader that DOES NOT depend on Env::get()
+     * Reads getenv(), then $_ENV, then $_SERVER.
+     */
+    private static function env(string $key, string $default): string
+    {
+        $v = getenv($key);
+        if ($v === false || $v === null || trim((string)$v) === '') {
+            $v = $_ENV[$key] ?? $_SERVER[$key] ?? null;
+        }
+        $s = trim((string)$v);
+        return $s !== '' ? $s : $default;
+    }
+
+    private static function gdLoadByType(string $tmp, int $type)
+    {
+        switch ($type) {
+            case IMAGETYPE_JPEG: return @imagecreatefromjpeg($tmp);
+            case IMAGETYPE_PNG:  return @imagecreatefrompng($tmp);
+            case IMAGETYPE_WEBP: return function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($tmp) : null;
+            case IMAGETYPE_GIF:  return @imagecreatefromgif($tmp);
+            default: return null;
+        }
+    }
+
+    private static function gdResizeContainSquare($src, int $w, int $h, int $outSize)
+    {
+        $dst = imagecreatetruecolor($outSize, $outSize);
+
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+        imagefilledrectangle($dst, 0, 0, $outSize, $outSize, $transparent);
+
+        $scale = min($outSize / $w, $outSize / $h);
+        $newW = (int)max(1, floor($w * $scale));
+        $newH = (int)max(1, floor($h * $scale));
+
+        $dstX = (int)floor(($outSize - $newW) / 2);
+        $dstY = (int)floor(($outSize - $newH) / 2);
+
+        imagecopyresampled($dst, $src, $dstX, $dstY, 0, 0, $newW, $newH, $w, $h);
+
+        return $dst;
+    }
+}

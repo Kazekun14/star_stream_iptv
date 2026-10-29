@@ -1,0 +1,457 @@
+// src/pages/live/ChannelsPage.tsx
+import React from "react";
+import type { LiveChannel, LiveCategory } from "../../api/types";
+import {
+  listChannels,
+  createChannel,
+  updateChannel,
+  deleteChannel,
+  listCategories,
+  uploadChannelLogo,
+} from "../../api/live";
+import { DataTable, type Col } from "../../components/DataTable";
+import { Modal } from "../../components/Modal";
+import { Confirm } from "../../components/Confirm";
+import { useToast } from "../../components/Toast";
+import { fmtDateTime } from "../../utils/date";
+import { clamp } from "../../utils/strings";
+
+function normBool(v: any): boolean {
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v !== 0;
+  if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+  return !!v;
+}
+
+function logoUrl(r: LiveChannel): string | null {
+  const u = (r.logo_uri || "").trim();
+  if (!u) return null;
+  if (u.startsWith("http://") || u.startsWith("https://") || u.startsWith("/")) return u;
+  return `/${u}`;
+}
+
+export default function ChannelsPage() {
+  const toast = useToast();
+
+  const [rows, setRows] = React.useState<LiveChannel[]>([]);
+  const [cats, setCats] = React.useState<LiveCategory[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [err, setErr] = React.useState<string | null>(null);
+  const [q, setQ] = React.useState("");
+
+  const [editOpen, setEditOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState<LiveChannel | null>(null);
+
+  const [name, setName] = React.useState("");
+  const [number, setNumber] = React.useState<string>("");
+  const [categoryId, setCategoryId] = React.useState<string>("");
+  const [sourceUri, setSourceUri] = React.useState("");
+  const [bitrate, setBitrate] = React.useState<string>("");
+  const [enabled, setEnabled] = React.useState(true);
+  const [description, setDescription] = React.useState("");
+
+  // Logo upload state
+  const fileRef = React.useRef<HTMLInputElement | null>(null);
+  const [logoFile, setLogoFile] = React.useState<File | null>(null);
+  const [logoBusy, setLogoBusy] = React.useState(false);
+
+  const [confirmDel, setConfirmDel] = React.useState<LiveChannel | null>(null);
+
+  async function reload() {
+    setLoading(true);
+    setErr(null);
+    try {
+      const [ch, cg] = await Promise.all([listChannels(), listCategories()]);
+      setRows(ch);
+      setCats(cg);
+    } catch (e: any) {
+      setErr(e?.message || "Failed to load channels");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  React.useEffect(() => {
+    reload();
+  }, []);
+
+  function catName(id?: number | null) {
+    if (!id) return "";
+    return cats.find((c) => c.id === id)?.category || String(id);
+  }
+
+  function resetForm() {
+    setName("");
+    setNumber("");
+    setCategoryId("");
+    setSourceUri("");
+    setBitrate("");
+    setEnabled(true);
+    setDescription("");
+
+    setLogoFile(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  function openCreate() {
+    setEditing(null);
+    resetForm();
+    setEditOpen(true);
+  }
+
+  function openEdit(c: LiveChannel) {
+    setEditing(c);
+
+    setName(c.name || "");
+    setNumber(c.number == null ? "" : String(c.number));
+    setCategoryId(c.category_id == null ? "" : String(c.category_id));
+    setSourceUri(c.source_uri || "");
+    setBitrate(c.bitrate_kbps == null ? "" : String(c.bitrate_kbps));
+    setEnabled(normBool(c.enabled ?? true));
+    setDescription(c.description || "");
+
+    setLogoFile(null);
+    if (fileRef.current) fileRef.current.value = "";
+
+    setEditOpen(true);
+  }
+
+  function onPickLogoFile(f?: File | null) {
+    if (!f) {
+      setLogoFile(null);
+      return;
+    }
+
+    // Client-side sanity checks (server still enforces)
+    const MAX_BYTES = 2 * 1024 * 1024; // must match backend
+    const allowed = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+
+    if (f.size > MAX_BYTES) {
+      toast.push({ type: "error", title: "File too large", message: "Max 2MB." });
+      if (fileRef.current) fileRef.current.value = "";
+      setLogoFile(null);
+      return;
+    }
+    if (f.type && !allowed.includes(f.type)) {
+      toast.push({ type: "error", title: "Unsupported format", message: "Use PNG/JPG/WebP/GIF." });
+      if (fileRef.current) fileRef.current.value = "";
+      setLogoFile(null);
+      return;
+    }
+
+    setLogoFile(f);
+  }
+
+  async function save() {
+    const payload: Partial<LiveChannel> = {
+      name: name.trim(),
+      number: number.trim() === "" ? null : Number(number),
+      category_id: categoryId.trim() === "" ? null : Number(categoryId),
+      source_uri: sourceUri.trim() === "" ? null : sourceUri.trim(),
+      bitrate_kbps: bitrate.trim() === "" ? null : Number(bitrate),
+      enabled: enabled ? 1 : 0,
+      description: description.trim() === "" ? null : description.trim(),
+    };
+
+    if (!payload.name) throw new Error("Name is required");
+
+    try {
+      let channelId: number;
+
+      if (editing) {
+        await updateChannel(editing.id, payload);
+        channelId = editing.id;
+        toast.push({ type: "ok", title: "Channel updated" });
+      } else {
+        const created: any = await createChannel(payload);
+        channelId = Number(created?.id);
+        if (!channelId || Number.isNaN(channelId)) throw new Error("Create failed: missing channel id");
+        toast.push({ type: "ok", title: "Channel created" });
+      }
+
+      // Optional logo upload, then refresh list so logo shows in column.
+      if (logoFile) {
+        setLogoBusy(true);
+        try {
+          await uploadChannelLogo(channelId, logoFile);
+          toast.push({ type: "ok", title: "Logo uploaded" });
+        } finally {
+          setLogoBusy(false);
+        }
+      }
+
+      setEditOpen(false);
+      resetForm();
+
+      // IMPORTANT: refresh so the logo_uri/logo_file_id reflect immediately
+      await reload();
+    } catch (e: any) {
+      toast.push({ type: "error", title: "Save failed", message: e?.message || String(e) });
+      throw e;
+    }
+  }
+
+  const filtered = rows.filter((r) => {
+    const hay = `${r.name || ""} ${r.number ?? ""} ${catName(r.category_id)}`.toLowerCase();
+    return hay.includes(q.trim().toLowerCase());
+  });
+
+  const cols: Col<LiveChannel>[] = [
+    { key: "id", header: "ID", width: 80, render: (r) => r.id },
+
+    // ✅ Logo column
+    {
+      key: "logo",
+      header: "Logo",
+      width: 92,
+      render: (r) => {
+        const u = logoUrl(r);
+        // cache-bust using logo_file_id so updated logos appear instantly even if the path/filename is same
+        const bust = r.logo_file_id ? `?v=${r.logo_file_id}` : "";
+        const src = u ? `${u}${bust}` : null;
+
+        return (
+          <div style={{ width: 56, height: 36, display: "flex", alignItems: "center" }}>
+            {src ? (
+              <img
+                src={src}
+                alt=""
+                style={{
+                  width: 56,
+                  height: 36,
+                  objectFit: "contain",
+                  borderRadius: 8,
+                  background: "rgba(255,255,255,0.06)",
+                }}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <span style={{ opacity: 0.5, fontSize: 12 }}>—</span>
+            )}
+          </div>
+        );
+      },
+    },
+
+    { key: "num", header: "#", width: 80, render: (r) => r.number ?? "" },
+    { key: "name", header: "Name", render: (r) => <b>{r.name}</b> },
+    { key: "cat", header: "Category", width: 180, render: (r) => catName(r.category_id) },
+    {
+      key: "src",
+      header: "Source",
+      width: 260,
+      render: (r) => <span title={r.source_uri || ""}>{clamp(r.source_uri || "", 36)}</span>,
+    },
+    { key: "en", header: "Enabled", width: 110, render: (r) => (normBool(r.enabled) ? "Yes" : "No") },
+    { key: "upd", header: "Updated", width: 210, render: (r) => fmtDateTime(r.updated_at) },
+    {
+      key: "actions",
+      header: "Actions",
+      width: 260,
+      render: (r) => (
+        <div className="row">
+          <button className="btn small" onClick={() => openEdit(r)}>
+            Edit
+          </button>
+          <button className="btn small danger" onClick={() => setConfirmDel(r)}>
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const currentLogo = editing ? logoUrl(editing) : null;
+  const currentLogoBust = editing?.logo_file_id ? `?v=${editing.logo_file_id}` : "";
+
+  return (
+    <div className="container">
+      <div className="row" style={{ marginBottom: 14 }}>
+        <p className="h1" style={{ margin: 0 }}>
+          Live Channels
+        </p>
+        <span className="badge">{loading ? "Loading…" : `${filtered.length} items`}</span>
+        <div className="spacer" />
+        <input
+          className="input"
+          style={{ width: 320 }}
+          placeholder="Search name/number/category…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <button className="btn" onClick={reload} disabled={loading}>
+          Refresh
+        </button>
+        <button className="btn primary" onClick={openCreate} disabled={loading}>
+          New Channel
+        </button>
+      </div>
+
+      {err ? <div className="error" style={{ marginBottom: 12 }}>{err}</div> : null}
+
+      <div className="card">
+        <DataTable cols={cols} rows={filtered} emptyText={loading ? "Loading…" : "No channels"} />
+      </div>
+
+      <Modal
+        open={editOpen}
+        title={editing ? `Edit Channel #${editing.id}` : "New Channel"}
+        onClose={() => setEditOpen(false)}
+        footer={
+          <>
+            <div className="spacer" />
+            <button className="btn" onClick={() => setEditOpen(false)} disabled={logoBusy}>
+              Cancel
+            </button>
+            <button className="btn primary" onClick={save} disabled={logoBusy}>
+              {logoBusy ? "Uploading…" : "Save"}
+            </button>
+          </>
+        }
+      >
+        {/* Logo panel */}
+        <div className="card" style={{ padding: 12, marginBottom: 12 }}>
+          <div className="row" style={{ alignItems: "center", gap: 12 }}>
+            <div style={{ width: 72, height: 44, display: "flex", alignItems: "center" }}>
+              {currentLogo ? (
+                <img
+                  src={`${currentLogo}${currentLogoBust}`}
+                  alt=""
+                  style={{
+                    width: 72,
+                    height: 44,
+                    objectFit: "contain",
+                    borderRadius: 10,
+                    background: "rgba(255,255,255,0.06)",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 72,
+                    height: 44,
+                    borderRadius: 10,
+                    background: "rgba(255,255,255,0.06)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: 0.6,
+                    fontSize: 12,
+                  }}
+                >
+                  No logo
+                </div>
+              )}
+
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                style={{ display: "none" }}
+                onChange={(e) => onPickLogoFile(e.target.files?.[0] || null)}
+              />
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <div className="h2" style={{ marginBottom: 4 }}>
+                Channel Logo
+              </div>
+              <div style={{ opacity: 0.75, fontSize: 12 }}>
+                PNG/JPG/WebP/GIF • max 2MB • server converts to square PNG.
+              </div>
+              {logoFile ? (
+                <div style={{ marginTop: 6, fontSize: 12 }}>
+                  Selected: <b>{logoFile.name}</b> ({Math.round(logoFile.size / 1024)} KB)
+                </div>
+              ) : null}
+            </div>
+
+            <div className="row" style={{ gap: 8 }}>
+              <button className="btn small" onClick={() => fileRef.current?.click()} disabled={logoBusy}>
+                Choose…
+              </button>
+              <button
+                className="btn small"
+                onClick={() => {
+                  setLogoFile(null);
+                  if (fileRef.current) fileRef.current.value = "";
+                }}
+                disabled={logoBusy || !logoFile}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid" style={{ gridTemplateColumns: "1fr 160px 220px", gap: 12 }}>
+          <div>
+            <div className="h2">Name</div>
+            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="HBO" />
+          </div>
+          <div>
+            <div className="h2">Number</div>
+            <input className="input" value={number} onChange={(e) => setNumber(e.target.value)} placeholder="1" />
+          </div>
+          <div>
+            <div className="h2">Category</div>
+            <select className="select" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+              <option value="">—</option>
+              {cats.map((c) => (
+                <option key={c.id} value={String(c.id)}>
+                  {c.category}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid" style={{ gridTemplateColumns: "1fr 160px 160px", gap: 12, marginTop: 12 }}>
+          <div>
+            <div className="h2">Source URI</div>
+            <input
+              className="input"
+              value={sourceUri}
+              onChange={(e) => setSourceUri(e.target.value)}
+              placeholder="udp://@239.0.0.1:1234"
+            />
+          </div>
+          <div>
+            <div className="h2">Bitrate (kbps)</div>
+            <input className="input" value={bitrate} onChange={(e) => setBitrate(e.target.value)} placeholder="2500" />
+          </div>
+          <div>
+            <div className="h2">Enabled</div>
+            <select className="select" value={enabled ? "1" : "0"} onChange={(e) => setEnabled(e.target.value === "1")}>
+              <option value="1">Enabled</option>
+              <option value="0">Disabled</option>
+            </select>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <div className="h2">Description</div>
+          <textarea className="textarea" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description…" />
+        </div>
+      </Modal>
+
+      <Confirm
+        open={!!confirmDel}
+        title={confirmDel ? `Delete channel #${confirmDel.id}?` : "Delete"}
+        message="This cannot be undone."
+        confirmText="Delete"
+        danger
+        onCancel={() => setConfirmDel(null)}
+        onConfirm={async () => {
+          if (!confirmDel) return;
+          await deleteChannel(confirmDel.id);
+          toast.push({ type: "ok", title: "Channel deleted" });
+          setConfirmDel(null);
+          await reload();
+        }}
+      />
+    </div>
+  );
+}

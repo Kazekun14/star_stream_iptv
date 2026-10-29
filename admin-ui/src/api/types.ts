@@ -1,0 +1,51 @@
+export type Ok = { ok: boolean; message?: string; error?: string };
+
+export type AdminMe = {
+  id: number;
+  username: string;
+  full_name?: string | null;
+  email?: string | null;
+};
+
+export type Health = { ok: boolean; service?: string; timestamp?: string };
+
+export type LiveCategory = {
+  id: number;
+  category: string;
+  sort_order?: number | null;
+  enabled?: number | boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type LiveChannel = {
+  id: number;
+  channel_key?: string | null;
+  name: string;
+  number?: number | null;
+  category_id?: number | null;
+  logo_file_id?: number | null;
+logo_uri?: string | null;
+source_uri?: string | null;
+  bitrate_kbps?: number | null;
+  enabled?: number | boolean | null;
+  description?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+ 
+
+export type User = {
+  id: number;
+  username: string;
+  full_name?: string | null;
+  email?: string | null;
+  status?: string | null;
+  account_expiry?: string | null;
+  is_trial?: number | boolean | null;
+  max_connections?: number | null;
+  max_live_devices?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};

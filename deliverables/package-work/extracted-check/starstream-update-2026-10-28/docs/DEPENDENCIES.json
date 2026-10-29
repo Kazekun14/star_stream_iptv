@@ -1,0 +1,44 @@
+{
+  "nodeUsedForIsolatedBuild": "v24.13.1",
+  "lockfileVersion": 3,
+  "runtime": {
+    "react": {
+      "requested": "^18.3.1",
+      "locked": "18.3.1"
+    },
+    "react-dom": {
+      "requested": "^18.3.1",
+      "locked": "18.3.1"
+    },
+    "react-router-dom": {
+      "requested": "^6.26.2",
+      "locked": "6.30.3"
+    }
+  },
+  "development": {
+    "@types/react": {
+      "requested": "^18.3.4",
+      "locked": "18.3.27"
+    },
+    "@types/react-dom": {
+      "requested": "^18.3.0",
+      "locked": "18.3.7"
+    },
+    "@types/node": {
+      "requested": "^22.7.4",
+      "locked": "22.19.7"
+    },
+    "@vitejs/plugin-react": {
+      "requested": "^4.3.1",
+      "locked": "4.7.0"
+    },
+    "typescript": {
+      "requested": "^5.5.4",
+      "locked": "5.9.3"
+    },
+    "vite": {
+      "requested": "^5.4.6",
+      "locked": "5.4.21"
+    }
+  }
+}

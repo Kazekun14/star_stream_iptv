@@ -1,0 +1,67 @@
+<?php
+declare(strict_types=1);
+
+namespace StarStream\Controllers;
+
+use PDO;
+use StarStream\Core\Db;
+use StarStream\Core\Http;
+
+final class PublicChannelsController
+{
+    /**
+     * Public read-only channel list for IPTV clients.
+     *
+     * GET /public/live/channels
+     *
+     * Returns only enabled channels.
+     * Does NOT expose multicast source URI,
+     * service ID, admin information, or DB details.
+     */
+    public static function list(): void
+    {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+
+        $pdo = Db::pdo();
+
+        $st = $pdo->query("
+            SELECT
+                c.number,
+                c.channel_key,
+                c.name,
+                m.uri AS logo_uri
+            FROM live_channels c
+            LEFT JOIN media_files m
+                ON m.id = c.logo_file_id
+               AND m.kind = 'logo'
+            WHERE c.enabled = 1
+            ORDER BY c.number ASC
+        ");
+
+        $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+        $st->closeCursor();
+
+        $items = [];
+
+        foreach ($rows as $row) {
+            $channelKey = (string)$row['channel_key'];
+
+            $items[] = [
+                'number'      => (int)$row['number'],
+                'channel_key' => $channelKey,
+                'name'        => (string)$row['name'],
+                'logo_uri'    => isset($row['logo_uri'])
+                    ? (string)$row['logo_uri']
+                    : null,
+                'hls_path'    => '/hls/live/' . rawurlencode($channelKey) . '/master.m3u8',
+            ];
+        }
+
+        Http::json([
+            'ok'    => true,
+            'count' => count($items),
+            'items' => $items,
+        ]);
+    }
+}

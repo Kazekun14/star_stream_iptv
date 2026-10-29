@@ -1,0 +1,18 @@
+{
+  "packageId": "starstream-update-2026-10-28",
+  "sourceBaselineAvailable": false,
+  "collectedFrontendFiles": 52,
+  "backendReferenceFiles": 23,
+  "sourceBytesUnchanged": true,
+  "staticSecretPatternFindings": [],
+  "isolatedTypeScriptCheck": "passed",
+  "isolatedViteBuild": "passed",
+  "helperSyntax": "passed",
+  "installationScriptsExecuted": false,
+  "backupScriptsExecuted": false,
+  "rollbackScriptsExecuted": false,
+  "productionAccessed": false,
+  "databaseAccessed": false,
+  "cleanDependencyInstallTested": false,
+  "backendIntegrationTested": false
+}

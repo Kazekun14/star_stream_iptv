@@ -1,0 +1,380 @@
+{
+  "baselineAvailable": false,
+  "files": [
+    {
+      "source": "admin-ui/src/api/auth.ts",
+      "packagePath": "payload/admin-ui/src/api/auth.ts",
+      "sha256": "a831181ff8222caf1b9bff4c59df6b859dc1c386a2fd7c1455851c7dfd444a93"
+    },
+    {
+      "source": "admin-ui/src/api/dashboard.ts",
+      "packagePath": "payload/admin-ui/src/api/dashboard.ts",
+      "sha256": "8a34bc39c599d83b1e8a2c8d2eadb05f5f607ed05dbb87a5a0cf5a569f677885"
+    },
+    {
+      "source": "admin-ui/src/api/health.ts",
+      "packagePath": "payload/admin-ui/src/api/health.ts",
+      "sha256": "616fdd7f357cdcfb6aa4048f1ebc4f64178ae3e7652135581a48ea493449310b"
+    },
+    {
+      "source": "admin-ui/src/api/http.ts",
+      "packagePath": "payload/admin-ui/src/api/http.ts",
+      "sha256": "27992a7032719b09dfcb503e3285ff0c5d8d03731736e0f5a720317cda8bbb93"
+    },
+    {
+      "source": "admin-ui/src/api/live.ts",
+      "packagePath": "payload/admin-ui/src/api/live.ts",
+      "sha256": "ebc6e0e2bd00cc983f762132bd3d42b5a3799f0468237e233539dc639193adb9"
+    },
+    {
+      "source": "admin-ui/src/api/packageChannels.ts",
+      "packagePath": "payload/admin-ui/src/api/packageChannels.ts",
+      "sha256": "7dd0205b21437b513282d8aadc2a0fa1de434185d9b68e81304a1e175ef30407"
+    },
+    {
+      "source": "admin-ui/src/api/packages.ts",
+      "packagePath": "payload/admin-ui/src/api/packages.ts",
+      "sha256": "b744e212d2bf6510b43461ef54cb44a915ae329ce49569b361f5388946ebec43"
+    },
+    {
+      "source": "admin-ui/src/api/regUsers.ts",
+      "packagePath": "payload/admin-ui/src/api/regUsers.ts",
+      "sha256": "1c4d81b99c76426fff80f51d6bfc5f1ace272df512a61511aadf2c020447ff62"
+    },
+    {
+      "source": "admin-ui/src/api/types.ts",
+      "packagePath": "payload/admin-ui/src/api/types.ts",
+      "sha256": "aae7cad8e483651f4ad1add4dc8acb48aeea4e2b4febe83430739f6a6cc59696"
+    },
+    {
+      "source": "admin-ui/src/api/userPackages.ts",
+      "packagePath": "payload/admin-ui/src/api/userPackages.ts",
+      "sha256": "9bf36ab22e2a7436f33ab9ce43c9ce6c51f3ff14386b522dc33966e53919c362"
+    },
+    {
+      "source": "admin-ui/src/App.tsx",
+      "packagePath": "payload/admin-ui/src/App.tsx",
+      "sha256": "fb333d37471f5a96400eb74aa92cdd5d52b0d396d433a912c2a5b74bf74a95a4"
+    },
+    {
+      "source": "admin-ui/src/components/AccountMenu.tsx",
+      "packagePath": "payload/admin-ui/src/components/AccountMenu.tsx",
+      "sha256": "371109610342dd356a11f56d5d5d9272d098560b03aa21fddf782b54cb3cd29a"
+    },
+    {
+      "source": "admin-ui/src/components/AppearanceSettings.tsx",
+      "packagePath": "payload/admin-ui/src/components/AppearanceSettings.tsx",
+      "sha256": "c3694f1416c22ead2b2009e6856407fe9a4d1e49b31caa5855181bf589a39e55"
+    },
+    {
+      "source": "admin-ui/src/components/AuthGate.tsx",
+      "packagePath": "payload/admin-ui/src/components/AuthGate.tsx",
+      "sha256": "b3c56f7e2fe5d049d330f1d255679dee097ad15ae9ff158737fc7534a405a6ff"
+    },
+    {
+      "source": "admin-ui/src/components/Confirm.tsx",
+      "packagePath": "payload/admin-ui/src/components/Confirm.tsx",
+      "sha256": "451ae732fd3ece16901bfb03f1d1c45f70c2eb21e7eb9f81cef9ba3ad963eb1b"
+    },
+    {
+      "source": "admin-ui/src/components/DataTable.tsx",
+      "packagePath": "payload/admin-ui/src/components/DataTable.tsx",
+      "sha256": "564940d4e9ddf84d9d28bec12b8dc6db0047cce6a6735b88562c35e3f9c23967"
+    },
+    {
+      "source": "admin-ui/src/components/GlobalSearch.tsx",
+      "packagePath": "payload/admin-ui/src/components/GlobalSearch.tsx",
+      "sha256": "0b8d72e770d07a76fd40099598777eda0aacc83a2d13417164d05b3afd0e1dc3"
+    },
+    {
+      "source": "admin-ui/src/components/Modal.tsx",
+      "packagePath": "payload/admin-ui/src/components/Modal.tsx",
+      "sha256": "56496daddfe33896bc0827e4f6d031e2c732d7ff8677e835ac2fe216f92b07d0"
+    },
+    {
+      "source": "admin-ui/src/components/packageBarChart.css",
+      "packagePath": "payload/admin-ui/src/components/packageBarChart.css",
+      "sha256": "72dac52422a0d0f6ffd3100b67b830f9282db66917d049789a7fefdda846cb98"
+    },
+    {
+      "source": "admin-ui/src/components/PackageBarChart.tsx",
+      "packagePath": "payload/admin-ui/src/components/PackageBarChart.tsx",
+      "sha256": "9fec651fe063a1f1a3181a6127735aa8f6c828cc9bb6bd98fd609ceb52b163fb"
+    },
+    {
+      "source": "admin-ui/src/components/shell.css",
+      "packagePath": "payload/admin-ui/src/components/shell.css",
+      "sha256": "939ef37c2d2f6ae38aafbe8fbf96c54fbb3cb20ca9148fa4a33ec6f8b58e5bff"
+    },
+    {
+      "source": "admin-ui/src/components/Shell.tsx",
+      "packagePath": "payload/admin-ui/src/components/Shell.tsx",
+      "sha256": "5b940816a476d991d1a067fcf25eeeceea6520e0c6020499124f884d7a237dc2"
+    },
+    {
+      "source": "admin-ui/src/components/SidebarIcon.tsx",
+      "packagePath": "payload/admin-ui/src/components/SidebarIcon.tsx",
+      "sha256": "cef3418a7b249c5e0def330df3ceb588c7cabc45af7f9f257811b161c637cfff"
+    },
+    {
+      "source": "admin-ui/src/components/Toast.tsx",
+      "packagePath": "payload/admin-ui/src/components/Toast.tsx",
+      "sha256": "21cc176770fc1ad3eb25a2211a6f1e79381043135f866b1221587d2bd4febf3a"
+    },
+    {
+      "source": "admin-ui/src/main.tsx",
+      "packagePath": "payload/admin-ui/src/main.tsx",
+      "sha256": "3ad9ff05095efdbac1588cc4a9de2ae93f8c98f2b12a70b188ba4f715885e1ea"
+    },
+    {
+      "source": "admin-ui/src/pages/adminPortal.css",
+      "packagePath": "payload/admin-ui/src/pages/adminPortal.css",
+      "sha256": "93490078c336ae6f9fe30b54f3710dd376dbb25d4a32b881b5e38c5bb360e926"
+    },
+    {
+      "source": "admin-ui/src/pages/adminPortal.tsx",
+      "packagePath": "payload/admin-ui/src/pages/adminPortal.tsx",
+      "sha256": "05147b814554233efd83c0a24832c7ce06e2fbfe93b84d9bd9ef98b96affd4d6"
+    },
+    {
+      "source": "admin-ui/src/pages/dashboard.css",
+      "packagePath": "payload/admin-ui/src/pages/dashboard.css",
+      "sha256": "e4aecd0be09a0647715deb168821008f7252279c59879fc035beb89fb7d9a414"
+    },
+    {
+      "source": "admin-ui/src/pages/DashboardPage.tsx",
+      "packagePath": "payload/admin-ui/src/pages/DashboardPage.tsx",
+      "sha256": "12b5f6eab6aa7a0f6461b31bd38320f78061301d4ce7d4c20d78d57204419f44"
+    },
+    {
+      "source": "admin-ui/src/pages/live/categories.css",
+      "packagePath": "payload/admin-ui/src/pages/live/categories.css",
+      "sha256": "ff8df19a225abf617afa1dc2e52440472c819e022693b0aad1f031213505cc87"
+    },
+    {
+      "source": "admin-ui/src/pages/live/CategoriesPage.tsx",
+      "packagePath": "payload/admin-ui/src/pages/live/CategoriesPage.tsx",
+      "sha256": "cab3bda6fb8c4130894e92dfc436020adb9de8fc72a924c4ca6861118d31dfe1"
+    },
+    {
+      "source": "admin-ui/src/pages/live/ChannelsPage.tsx",
+      "packagePath": "payload/admin-ui/src/pages/live/ChannelsPage.tsx",
+      "sha256": "731218ce11a52ad3861255c4b36ae633fe3af1e54f02bf213c0de2207eb23db8"
+    },
+    {
+      "source": "admin-ui/src/pages/packages/package-channels.css",
+      "packagePath": "payload/admin-ui/src/pages/packages/package-channels.css",
+      "sha256": "353e9fd12fab7012c8c2c108dc379c1c63829282178d274efe7c120a94017792"
+    },
+    {
+      "source": "admin-ui/src/pages/packages/PackageChannelsPage.tsx",
+      "packagePath": "payload/admin-ui/src/pages/packages/PackageChannelsPage.tsx",
+      "sha256": "594a5dec3875d1a1961553ba18f138d923f45fe31096e0c0f15e48bb413efae2"
+    },
+    {
+      "source": "admin-ui/src/pages/packages/packages.css",
+      "packagePath": "payload/admin-ui/src/pages/packages/packages.css",
+      "sha256": "c03c74408e329be5979c9789e9133c86f9755edc35d0d4050c5290963c570147"
+    },
+    {
+      "source": "admin-ui/src/pages/packages/PackagesPage.tsx",
+      "packagePath": "payload/admin-ui/src/pages/packages/PackagesPage.tsx",
+      "sha256": "e9ccda963ff6e63f5686357c25a69e8dc332c8e0329d2802cd5420e8cc4f7ab9"
+    },
+    {
+      "source": "admin-ui/src/pages/settings.css",
+      "packagePath": "payload/admin-ui/src/pages/settings.css",
+      "sha256": "2409d9a75df253200e15c247f0d2277dda1f3fd1ba341101dd27a3f9efd9ddf1"
+    },
+    {
+      "source": "admin-ui/src/pages/SettingsPage.tsx",
+      "packagePath": "payload/admin-ui/src/pages/SettingsPage.tsx",
+      "sha256": "faf3d14f66c30dc1e830019c7f18c4e526d2892f8cd6ac31aa01442fc334c75c"
+    },
+    {
+      "source": "admin-ui/src/pages/users/reg-users.css",
+      "packagePath": "payload/admin-ui/src/pages/users/reg-users.css",
+      "sha256": "d57a7bd5488488a8b053b454018c4a1c3fc533f1e06f41a1bf06dc4fc184f9ea"
+    },
+    {
+      "source": "admin-ui/src/pages/users/RegUsersPage.tsx",
+      "packagePath": "payload/admin-ui/src/pages/users/RegUsersPage.tsx",
+      "sha256": "dfe541d25d51486c8f19ff3c2b745c2d0b34b3a0aa323b7c4ed8308c48e08ea5"
+    },
+    {
+      "source": "admin-ui/src/responsive.css",
+      "packagePath": "payload/admin-ui/src/responsive.css",
+      "sha256": "921ff3b3c62fda472610dda67b233e3b46092441eb427b98d524292dff8151af"
+    },
+    {
+      "source": "admin-ui/src/styles.css",
+      "packagePath": "payload/admin-ui/src/styles.css",
+      "sha256": "aee191480c79ab1c2a246a30cd932f36f9ece733941cab962cd966518b695233"
+    },
+    {
+      "source": "admin-ui/src/theme.css",
+      "packagePath": "payload/admin-ui/src/theme.css",
+      "sha256": "fcc3d33f8f97cad4e502f552c68c8bb2f9aa68cbac53e7f26181a3d7fff7b8b3"
+    },
+    {
+      "source": "admin-ui/src/theme.ts",
+      "packagePath": "payload/admin-ui/src/theme.ts",
+      "sha256": "e70df6ddbdb3ccb144afb55820ca22e93b0ab9f716cb72779611440003b3b129"
+    },
+    {
+      "source": "admin-ui/src/utils/date.ts",
+      "packagePath": "payload/admin-ui/src/utils/date.ts",
+      "sha256": "f02726db55b0330ed9d1b4bdcb6b07817de3b8a05cbb33268b78597c1d8c76b0"
+    },
+    {
+      "source": "admin-ui/src/utils/strings.ts",
+      "packagePath": "payload/admin-ui/src/utils/strings.ts",
+      "sha256": "ae47160ae7d6767162b43f2925b37ed851252e39d2029094379a1715446a46e7"
+    },
+    {
+      "source": "admin-ui/index.html",
+      "packagePath": "payload/admin-ui/index.html",
+      "sha256": "218cd763a0a2a850df737e33d42426030a3c86d83b173cad2b2a4963d2b5caca"
+    },
+    {
+      "source": "admin-ui/package.json",
+      "packagePath": "payload/admin-ui/package.json",
+      "sha256": "8b08aab4202813e41672d6f8495be7ae2c04831f2005f3d541cf87125646602e"
+    },
+    {
+      "source": "admin-ui/package-lock.json",
+      "packagePath": "payload/admin-ui/package-lock.json",
+      "sha256": "3dd3d299f4ad3488583f7e73a22899fc8ad8ef25927e5d08bb61d946ab7ddfe6"
+    },
+    {
+      "source": "admin-ui/tsconfig.json",
+      "packagePath": "payload/admin-ui/tsconfig.json",
+      "sha256": "1229a63dba17e8fbaa9f054bae9d2096ffb1bb3776ea043b552221ec631f6f6d"
+    },
+    {
+      "source": "admin-ui/public/star-stream-logo.svg",
+      "packagePath": "payload/admin-ui/public/star-stream-logo.svg",
+      "sha256": "93cb0dffb72f93f3ae4b2d5af5e984cff954b0a422f748c250a0a77f53a7c952"
+    },
+    {
+      "source": "admin-ui/public/cebu-cable-internet.png",
+      "packagePath": "payload/admin-ui/public/cebu-cable-internet.png",
+      "sha256": "12420619d87db16111a4fc18040b5f479c284954526c9a3cee8809cf452f25ad"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/AdminAuth.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/AdminAuth.php",
+      "sha256": "5e2558ba28740effddf553a1ba6bd86e4c0f2fb76d788edd9338e6f17d459d4d"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/AdminSettingsController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/AdminSettingsController.php",
+      "sha256": "d9d9b657ee1f90e3f89c0bd200f36766c0a1742f216b687c497b16250ba20b65"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/AuthController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/AuthController.php",
+      "sha256": "e963ed85331cb75aa7282dc8dbc1104fb3953e38937a78d7c43ddef8539c80bc"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/DashboardController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/DashboardController.php",
+      "sha256": "55781dd9077de841b9947bd13abcfde5eecf51c7ef1751d045b2120764272207"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/LiveCategoryController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/LiveCategoryController.php",
+      "sha256": "67eca5b0f43f63637284a41e36bb92da854ecf88e4ddf245fa5e8d31fd00899f"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/LiveChannelsController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/LiveChannelsController.php",
+      "sha256": "782c41dec1ffb64c83c340b98513a494c7422c3c0e6d9694542ad3fc0d4dc87e"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/LivePackageChannelsController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/LivePackageChannelsController.php",
+      "sha256": "9d1f2fe2a23476a94d14994567777faf83fbebf8863ecd5345c97c7e6bbfff6b"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/LivePackagesController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/LivePackagesController.php",
+      "sha256": "f6d14acc06b80f33c67297aae0b5a5daa51fb64545067a26870dc2a6c47bbf84"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/LiveUserPackagesController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/LiveUserPackagesController.php",
+      "sha256": "e254a5181f89faafd742ff013cf81f5d24b522ffc07ec16b0610c9a6d236a2df"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/PublicChannelsController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/PublicChannelsController.php",
+      "sha256": "566ee033f5cdba41f57b0c12760dd0b698d944d5f5a2bf4131aa117320553c41"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/RegUsersController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/RegUsersController.php",
+      "sha256": "caa33af89a352cb223e2ba8266964b3e5c2aee3902df6993c053ae89f586dcbf"
+    },
+    {
+      "source": "api-mgmt/src/Controllers/UserPackagesController.php",
+      "packagePath": "backend-reference/api-mgmt/src/Controllers/UserPackagesController.php",
+      "sha256": "86dd87ad84600292d154609cefe30908c2d11acc7940ceb91500262b35c268e8"
+    },
+    {
+      "source": "api-mgmt/src/Core/App.php",
+      "packagePath": "backend-reference/api-mgmt/src/Core/App.php",
+      "sha256": "e0e7f638854fc1d84ab344f03243994a1a8e778cbf7788f059c6404971ae7f66"
+    },
+    {
+      "source": "api-mgmt/src/Core/Auth.php",
+      "packagePath": "backend-reference/api-mgmt/src/Core/Auth.php",
+      "sha256": "63b67fbfe4d52d1ecc89409e04a45a0a046844571bba1950f9c4a47c9f10d1e8"
+    },
+    {
+      "source": "api-mgmt/src/Core/Db.php",
+      "packagePath": "backend-reference/api-mgmt/src/Core/Db.php",
+      "sha256": "1330504c71243351ff7cabebfd6d11ea7297b2114fcd9668053c1eb60624a281"
+    },
+    {
+      "source": "api-mgmt/src/Core/Env.php",
+      "packagePath": "backend-reference/api-mgmt/src/Core/Env.php",
+      "sha256": "78159979bc825c666f24aca7cd795f0f3a4705d45f82610167fe5af9dce5f774"
+    },
+    {
+      "source": "api-mgmt/src/Core/Http.php",
+      "packagePath": "backend-reference/api-mgmt/src/Core/Http.php",
+      "sha256": "78f890d8e79e0a0ac43ce382f9e4f568d6d903d21fefebb69ded985f6a266135"
+    },
+    {
+      "source": "api-mgmt/src/Core/Logger.php",
+      "packagePath": "backend-reference/api-mgmt/src/Core/Logger.php",
+      "sha256": "b76573dfe4e60f698092a56589405dba73586356f062cc585322b51a014f0c99"
+    },
+    {
+      "source": "api-mgmt/src/Core/Router.php",
+      "packagePath": "backend-reference/api-mgmt/src/Core/Router.php",
+      "sha256": "0e26e6775967aca3ad7602bd152a70b0973676879737b68fa73ff52a83607d51"
+    },
+    {
+      "source": "api-mgmt/src/Routes/api.php",
+      "packagePath": "backend-reference/api-mgmt/src/Routes/api.php",
+      "sha256": "05a58adf2481271d3ef89ad1d7fe139d04471a042e7f574e0c64115590ccbf13"
+    },
+    {
+      "source": "api-mgmt/composer.json",
+      "packagePath": "backend-reference/api-mgmt/composer.json",
+      "sha256": "da08ff97e7a10d02f0a740641e81ce9bbab178f1e322a7b7e6fb37404cc59213"
+    },
+    {
+      "source": "api-mgmt/composer.lock",
+      "packagePath": "backend-reference/api-mgmt/composer.lock",
+      "sha256": "f0347202a33690ecb2bee7021c1aa12ef3dc4eb179ad2ce93e3c5763fb8607be"
+    },
+    {
+      "source": "api-mgmt/public/index.php",
+      "packagePath": "backend-reference/api-mgmt/public/index.php",
+      "sha256": "f230741374b5201aa465843c86f5320a6bb6eae7a4177ab526ce971208ea0bb2"
+    }
+  ]
+}

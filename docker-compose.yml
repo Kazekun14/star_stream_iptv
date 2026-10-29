@@ -1,0 +1,62 @@
+services:
+  database:
+    image: mariadb:11.8
+    container_name: starstream-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: starstream
+      MARIADB_USER: quad
+      MARIADB_PASSWORD: quad514562a
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      # Automatically imports our SQL dump on the first container startup:
+      - ./starstream_export.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  # Local PHP Management API (what the admin-ui proxies /api to, on port 8100).
+  # Environment variables below take precedence over api-mgmt/.env (phpdotenv is immutable),
+  # so the copied server .env is left untouched and the API talks to the LOCAL database only.
+  api-mgmt:
+    build:
+      context: .
+      dockerfile: api-mgmt.Dockerfile
+    container_name: starstream-api-mgmt
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "composer install --no-interaction --no-progress && php -S 0.0.0.0:8100 -t public public/index.php"
+    environment:
+      DB_HOST: database
+      DB_PORT: "3306"
+      DB_NAME: starstream
+      DB_USER: quad
+      DB_PASS: quad514562a
+      DB_SOCKET: ""
+      APP_ENV: development
+      MGMT_COOKIE_SECURE: "0"
+      COOKIE_SECURE: "0"
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./api-mgmt:/app
+      - ./assets:/opt/starstream/assets
+    depends_on:
+      - database
+
+  # Optional web GUI for viewing and managing tables at http://localhost:8080
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: starstream-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
+
+volumes:
+  mariadb_data:
+

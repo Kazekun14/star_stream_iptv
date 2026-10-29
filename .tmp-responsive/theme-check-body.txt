@@ -1,0 +1,40 @@
+const assert = (ok, message) => { if (!ok) throw Error(message); };
+await send('Emulation.setDeviceMetricsOverride',{width:1440,height:960,deviceScaleFactor:1,mobile:false});
+await send('Page.navigate',{url:'http://127.0.0.1:4179/settings'}); await sleep(350);
+await evaluate(`localStorage.removeItem('starstream-theme')`);
+await send('Page.reload'); await sleep(250);
+assert(await evaluate(`document.documentElement.dataset.theme === 'dark'`),'Default must be dark');
+await evaluate(`document.querySelector('#tab-appearance').click()`); await sleep(100);
+assert(await evaluate(`document.querySelectorAll('input[name="website-theme"]').length === 2`),'Appearance choices missing');
+await evaluate(`document.querySelector('input[value="light"]').click()`); await sleep(120);
+assert(await evaluate(`document.documentElement.dataset.theme === 'light' && localStorage.getItem('starstream-theme') === 'light'`),'Light selection/persistence failed');
+fs.writeFileSync('.tmp-responsive/theme-light-settings.png',Buffer.from((await send('Page.captureScreenshot')).data,'base64'));
+await send('Page.reload'); await sleep(250);
+assert(await evaluate(`document.documentElement.dataset.theme === 'light'`),'Reload lost theme');
+await evaluate(`document.querySelector('#tab-account').focus()`);
+await send('Input.dispatchKeyEvent',{type:'keyDown',key:'End',code:'End'});
+assert(await evaluate(`document.activeElement.id === 'tab-appearance'`),'Tab keyboard navigation failed');
+await send('Input.dispatchKeyEvent',{type:'keyUp',key:'End',code:'End'});
+await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter'});
+await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter'}); await sleep(80);
+assert(await evaluate(`document.querySelector('#tab-appearance').getAttribute('aria-selected') === 'true'`),'Appearance keyboard activation failed');
+const results=[];
+for(const width of [390,768,1440]) {
+  await send('Emulation.setDeviceMetricsOverride',{width,height:960,deviceScaleFactor:1,mobile:false});
+  for(const route of ['dashboard','users','categories','channels','packages','package-channels','settings','portal']) {
+    await send('Page.navigate',{url:'http://127.0.0.1:4179/'+route}); await sleep(200);
+    if(route==='settings') { await evaluate(`document.querySelector('#tab-appearance').click()`); await sleep(80); }
+    const result=await evaluate(`({theme:document.documentElement.dataset.theme,overflow:document.documentElement.scrollWidth>innerWidth+1,body:getComputedStyle(document.body).backgroundColor,text:getComputedStyle(document.body).color})`);
+    assert(result.theme==='light'&&!result.overflow,JSON.stringify({width,route,...result}));
+    results.push({width,route,...result});
+    if((route==='users'&&width===1440)||(route==='settings'&&width===390)) fs.writeFileSync('.tmp-responsive/theme-light-'+route+'-'+width+'.png',Buffer.from((await send('Page.captureScreenshot')).data,'base64'));
+  }
+}
+await send('Page.navigate',{url:'http://127.0.0.1:4179/settings'}); await sleep(200);
+await evaluate(`document.querySelector('#tab-appearance').click()`); await sleep(80);
+await evaluate(`document.querySelector('input[value="dark"]').click()`); await sleep(80);
+assert(await evaluate(`document.documentElement.dataset.theme === 'dark' && localStorage.getItem('starstream-theme') === 'dark'`),'Dark restoration failed');
+await send('Page.reload'); await sleep(200);
+assert(await evaluate(`document.documentElement.dataset.theme === 'dark'`),'Dark reload failed');
+console.log(JSON.stringify({passed:true,checks:results.length,results},null,2));
+await send('Browser.close');

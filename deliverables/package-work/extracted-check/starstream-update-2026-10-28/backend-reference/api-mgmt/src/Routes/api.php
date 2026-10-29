@@ -1,0 +1,94 @@
+<?php
+declare(strict_types=1);
+
+use StarStream\Core\Router;
+use StarStream\Controllers\AuthController;
+use StarStream\Controllers\LiveCategoryController;
+use StarStream\Controllers\LiveChannelsController;
+use StarStream\Controllers\PublicChannelsController;
+use StarStream\Controllers\LivePackagesController;
+use StarStream\Controllers\LiveUserPackagesController;
+ 
+use StarStream\Controllers\RegUsersController;
+use StarStream\Controllers\LivePackageChannelsController;
+use StarStream\Controllers\UserPackagesController;
+use StarStream\Controllers\DashboardController;
+
+$router = new Router();
+
+/* health */
+$router->add('GET',  '/health', [AuthController::class, 'health']);
+
+/* public IPTV client metadata */
+$router->add('GET', '/public/live/channels', [PublicChannelsController::class, 'list']);
+
+/* auth */
+$router->add('POST', '/auth/login',  [AuthController::class, 'login']);
+$router->add('GET',  '/auth/me',     [AuthController::class, 'me']);
+$router->add('POST', '/auth/logout', [AuthController::class, 'logout']);
+
+$router->add('PUT', '/auth/me', [\StarStream\Controllers\AdminSettingsController::class, 'update']);
+$router->add('GET', '/auth/sessions', [\StarStream\Controllers\AdminSettingsController::class, 'sessions']);
+$router->add('POST', '/auth/sessions/revoke-others', [\StarStream\Controllers\AdminSettingsController::class, 'revokeOthers']);
+
+/* live categories */
+$router->add('GET',    '/live/categories',       [LiveCategoryController::class, 'list']);
+$router->add('GET',    '/live/categories/:id',   [LiveCategoryController::class, 'get']);
+$router->add('POST',   '/live/categories',       [LiveCategoryController::class, 'create']);
+$router->add('PUT',    '/live/categories/:id',   [LiveCategoryController::class, 'update']);
+$router->add('DELETE', '/live/categories/:id',   [LiveCategoryController::class, 'delete']);
+
+// /* live channels */
+$router->add('GET',    '/live/channels',       [LiveChannelsController::class, 'list']);
+$router->add('GET',    '/live/channels/:id',   [LiveChannelsController::class, 'get']);
+$router->add('POST',   '/live/channels',       [LiveChannelsController::class, 'create']);
+$router->add('PUT',    '/live/channels/:id',   [LiveChannelsController::class, 'update']);
+$router->add('DELETE', '/live/channels/:id',   [LiveChannelsController::class, 'delete']);
+
+// /* live packages */
+$router->add('GET',    '/live/packages',       [LivePackagesController::class, 'list']);
+$router->add('GET',    '/live/packages/:id',   [LivePackagesController::class, 'get']);
+$router->add('POST',   '/live/packages',       [LivePackagesController::class, 'create']);
+$router->add('PUT',    '/live/packages/:id',   [LivePackagesController::class, 'update']);
+$router->add('DELETE', '/live/packages/:id',   [LivePackagesController::class, 'delete']);
+
+
+
+// /* live package channels */
+$router->add('GET',    '/live/packages/:package_id/channels',                 [LivePackageChannelsController::class, 'list']);
+$router->add('GET',    '/live/packages/:package_id/channels/:channel_id',     [LivePackageChannelsController::class, 'get']);
+$router->add('POST',   '/live/packages/:package_id/channels',                 [LivePackageChannelsController::class, 'create']);
+$router->add('PUT',    '/live/packages/:package_id/channels',                 [LivePackageChannelsController::class, 'update']);
+$router->add('DELETE', '/live/packages/:package_id/channels/:channel_id',     [LivePackageChannelsController::class, 'delete']);
+
+
+// /* live user packages */
+$router->add('GET',    '/live/users/:user_id/packages',                 [LiveUserPackagesController::class, 'list']);
+$router->add('POST',   '/live/users/:user_id/packages',                 [LiveUserPackagesController::class, 'create']);
+$router->add('PUT',    '/live/users/:user_id/packages/:package_id',     [LiveUserPackagesController::class, 'update']);
+$router->add('DELETE', '/live/users/:user_id/packages/:package_id',     [LiveUserPackagesController::class, 'delete']);
+
+
+
+// /* registered users */
+$router->add('GET',    '/live/reg-users',        [RegUsersController::class, 'list']);
+$router->add('GET',    '/live/reg-users/:id',    [RegUsersController::class, 'get']);
+$router->add('POST',   '/live/reg-users',        [RegUsersController::class, 'create']);
+$router->add('PUT',    '/live/reg-users/:id',    [RegUsersController::class, 'update']);
+$router->add('DELETE', '/live/reg-users/:id',    [RegUsersController::class, 'delete']);
+
+$router->add('GET',    '/live/reg-users/:id/packages',             [UserPackagesController::class, 'listForUser']);
+$router->add('POST',   '/live/reg-users/:id/packages',             [UserPackagesController::class, 'createForUser']);
+$router->add('PUT',    '/live/reg-users/:id/packages/:package_id', [UserPackagesController::class, 'updateForUser']);
+$router->add('DELETE', '/live/reg-users/:id/packages/:package_id', [UserPackagesController::class, 'deleteForUser']);
+
+$router->add('GET', '/dashboard/metrics', [DashboardController::class, 'metrics']);
+
+
+/* live channel logo upload (multipart/form-data: logo=@file) */
+$router->add('POST',   '/live/channels/:id/logo', [LiveChannelsController::class, 'uploadLogo']);
+
+
+
+
+return $router;
